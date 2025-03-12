@@ -1,0 +1,36 @@
+{
+    "name": "ffxiv-character-viewer",
+    "version": "1.0.0",
+    "description": "Application pour visualiser les informations des personnages de FFXIV",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "server": "nodemon server.js",
+        "client": "cd client && npm start",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "install-client": "cd client && npm install",
+        "build": "cd client && npm run build",
+        "heroku-postbuild": "npm run install-client && npm run build"
+    },
+    "dependencies": {
+        "@chakra-ui/icons": "^2.2.4",
+        "@chakra-ui/react": "^3.12.0",
+        "@chakra-ui/toast": "^7.0.2",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
+        "axios": "^1.6.2",
+        "cheerio": "^1.0.0-rc.12",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "express-rate-limit": "^7.1.5",
+        "framer-motion": "^12.5.0"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "nodemon": "^3.0.1"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
