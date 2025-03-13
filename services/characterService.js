@@ -84,29 +84,10 @@ exports.searchCharacters = async (name, server = '', dataCenter = '') => {
 };
 
 /**
- * Détermine à quel Data Center appartient un serveur
- * @param {string} serverName - Nom du serveur
- * @returns {string} - Nom du Data Center, ou chaîne vide si non trouvé
+ * Récupère les détails d'un personnage par son ID
+ * @param {string} id L'ID du personnage
+ * @returns {Promise<Object>} Les détails du personnage
  */
-function getDataCenterByServer(serverName) {
-  for (const [dataCenter, servers] of Object.entries(dataCenters)) {
-    if (servers.includes(serverName)) {
-      return dataCenter;
-    }
-  }
-  return '';
-}
-
-/**
- * Vérifie si un serveur appartient à un Data Center
- * @param {string} serverName - Nom du serveur
- * @param {string} dataCenterName - Nom du Data Center
- * @returns {boolean} - true si le serveur appartient au Data Center
- */
-function serverBelongsToDataCenter(serverName, dataCenterName) {
-  return dataCenters[dataCenterName] && dataCenters[dataCenterName].includes(serverName);
-}
-
 exports.getCharacterDetails = async (id) => {
   try {
     // Construire l'URL du personnage
@@ -180,3 +161,13 @@ exports.getCharacterDetails = async (id) => {
     throw new Error(`Échec du scraping: ${error.message}`);
   }
 };
+
+/**
+ * Vérifie si un serveur appartient à un Data Center
+ * @param {string} serverName - Nom du serveur
+ * @param {string} dataCenterName - Nom du Data Center
+ * @returns {boolean} - true si le serveur appartient au Data Center
+ */
+function serverBelongsToDataCenter(serverName, dataCenterName) {
+  return dataCenters[dataCenterName] && dataCenters[dataCenterName].includes(serverName);
+}
