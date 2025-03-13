@@ -14,10 +14,14 @@ const api = axios.create({
 /**
  * Recherche des personnages par nom et serveur optionnel
  */
-export const searchCharacters = async (name, server = '') => {
+export const searchCharacters = async (name, server = '', dataCenter = '') => {
   try {
     const params = { name };
     
+    if (dataCenter) {
+      params.dataCenter = dataCenter;
+    }
+
     if (server) {
       params.server = server;
     }
@@ -43,7 +47,7 @@ export const getCharacterDetails = async (id) => {
     const response = await api.get(`/characters/${id}`);
     
     if (response.data.success) {
-      return response.data.data;
+      return response.data.character;
     } else {
       throw new Error(response.data.message || 'Erreur lors de la récupération des détails');
     }

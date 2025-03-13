@@ -1,4 +1,3 @@
-// src/components/JobIcon.js
 import React from 'react';
 import { Image, Box } from '@chakra-ui/react';
 
