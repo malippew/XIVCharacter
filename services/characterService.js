@@ -1,25 +1,49 @@
-// services/characterService.js
 const axios = require('axios');
 const cheerio = require('cheerio');
 
 const BASE_URL = 'https://fr.finalfantasyxiv.com';
 const LODESTONE_URL = `${BASE_URL}/lodestone/character`;
 
-exports.searchCharacters = async (name, server = '') => {
+// Structure des Data Centers et leurs serveurs
+const dataCenters = {
+  'Chaos': [
+    'Cerberus', 'Louisoix', 'Moogle', 'Omega', 
+    'Phantom', 'Ragnarok', 'Sagittarius', 'Spriggan'
+  ],
+  'Light': [
+    'Alpha', 'Lich', 'Odin', 'Phoenix', 
+    'Raiden', 'Shiva', 'Twintania', 'Zodiark'
+  ]
+};
+
+/**
+ * Recherche des personnages en fonction du nom et, optionnellement, du serveur ou du Data Center
+ * @param {string} name - Nom du personnage
+ * @param {string} server - Serveur spécifique (optionnel)
+ * @param {string} dataCenter - Data Center (optionnel)
+ * @returns {Promise<Array>} - Liste des personnages trouvés
+ */
+exports.searchCharacters = async (name, server = '', dataCenter = '') => {
+
   try {
     // Construire l'URL de recherche
     let searchUrl = `${LODESTONE_URL}/?q=${encodeURIComponent(name)}`;
     
+    // Si un serveur spécifique est fourni, l'ajouter à l'URL de recherche
     if (server) {
       searchUrl += `&worldname=${encodeURIComponent(server)}`;
     }
     
+    // Si un Data Center spécifique est fourni, l'ajouter à l'URL de recherche
+    if (dataCenter) {
+      searchUrl += `&dataCenter=${encodeURIComponent(dataCenter)}`;
+    }
     // Effectuer la requête
     const response = await axios.get(searchUrl);
     const $ = cheerio.load(response.data);
-    
+
     // Récupérer la liste des personnages
-    const characters = [];
+    let characters = [];
     
     $('.entry__link').each((i, element) => {
       const $element = $(element);
@@ -30,15 +54,27 @@ exports.searchCharacters = async (name, server = '') => {
       // Extraire l'ID depuis l'URL
       const characterUrl = $element.attr('href');
       const characterId = characterUrl.split('/').filter(Boolean).pop();
+      const characterServerName = $characterServer.text().trim();
+
+      const [server, dataCenter] = characterServerName.split(" [").map(part => part.replace("]", "").trim());
       
       characters.push({
         id: characterId,
         name: $characterName.text().trim(),
-        server: $characterServer.text().trim(),
+        server: server,
         avatar: $characterImage.attr('src'),
-        profileUrl: `${BASE_URL}${characterUrl}`
+        profileUrl: `${BASE_URL}${characterUrl}`,
+        dataCenter: dataCenter
       });
     });
+    
+    // Si un Data Center est fourni, filtrer les résultats par Data Center
+    if (dataCenter && !server) {
+      characters = characters.filter(character => 
+        character.dataCenter === dataCenter || 
+        serverBelongsToDataCenter(character.server, dataCenter)
+      );
+    }
     
     return characters;
   } catch (error) {
@@ -46,6 +82,30 @@ exports.searchCharacters = async (name, server = '') => {
     throw new Error(`Échec du scraping: ${error.message}`);
   }
 };
+
+/**
+ * Détermine à quel Data Center appartient un serveur
+ * @param {string} serverName - Nom du serveur
+ * @returns {string} - Nom du Data Center, ou chaîne vide si non trouvé
+ */
+function getDataCenterByServer(serverName) {
+  for (const [dataCenter, servers] of Object.entries(dataCenters)) {
+    if (servers.includes(serverName)) {
+      return dataCenter;
+    }
+  }
+  return '';
+}
+
+/**
+ * Vérifie si un serveur appartient à un Data Center
+ * @param {string} serverName - Nom du serveur
+ * @param {string} dataCenterName - Nom du Data Center
+ * @returns {boolean} - true si le serveur appartient au Data Center
+ */
+function serverBelongsToDataCenter(serverName, dataCenterName) {
+  return dataCenters[dataCenterName] && dataCenters[dataCenterName].includes(serverName);
+}
 
 exports.getCharacterDetails = async (id) => {
   try {
@@ -80,6 +140,8 @@ exports.getCharacterDetails = async (id) => {
           level: parseInt(jobLevel, 10) || 0
         });
       }
+
+
     });
     
     // Extraire les informations d'entreprise (FC)

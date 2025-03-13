@@ -2,7 +2,7 @@ const characterService = require('../services/characterService.js');
 
 exports.searchCharacters = async (req, res) => {
   try {
-    const { name, server } = req.query;
+    const { name, server, dataCenter } = req.query;
     
     if (!name) {
       return res.status(400).json({
@@ -10,13 +10,16 @@ exports.searchCharacters = async (req, res) => {
         message: 'Le nom du personnage est requis'
       });
     }
+
+    const capitalizeFirstLetter = (str) => 
+      str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
     
-    const characters = await characterService.searchCharacters(name, server);
+    const characters = await characterService.searchCharacters(name, capitalizeFirstLetter(server), capitalizeFirstLetter(dataCenter));
     
     res.status(200).json({
       success: true,
       numberOfCharacters: characters.length,
-      characters: characters
+      characters: characters.sort((a, b) => a.name.localeCompare(b.name)) // tri des personnages par nom alphabétique
     });
   } catch (error) {
     console.error('Erreur lors de la recherche des personnages:', error);
