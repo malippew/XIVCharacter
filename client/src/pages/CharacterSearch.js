@@ -19,7 +19,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 
 import CharacterCard from '../components/CharacterCard.js';
-import { searchCharacters } from '../services/api.js';
+import { searchCharacters } from '../services/api/back.js';
 
 // Structure des Data Centers et serveurs FFXIV
 const dataCenters = {

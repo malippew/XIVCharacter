@@ -20,8 +20,8 @@ import {
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { getCharacterDetails } from '../services/api';
-import JobIcon from '../components/JobIcon';
+import { getCharacterDetails } from '../services/api/back.js';
+import JobCard from '../components/JobCard.js';
 
 const CharacterDetails = () => {
   const { id } = useParams();
@@ -32,7 +32,7 @@ const CharacterDetails = () => {
   useEffect(() => {
     const fetchCharacterDetails = async () => {
       setIsLoading(true);
-      
+
       try {
         const data = await getCharacterDetails(id);
         setCharacter(data);
@@ -83,6 +83,7 @@ const CharacterDetails = () => {
         mb={6}
         size="sm"
         variant="outline"
+        colorScheme="blue"
       >
         Retour à la recherche
       </Button>
@@ -106,10 +107,10 @@ const CharacterDetails = () => {
           />
         </Box>
 
-        <Box p={6} flex="1">
+        <Box p={6} flex="1" bg="ffxiv.darkBlue">
           <VStack align="start" spacing={4}>
             <Heading size="xl">{character.name}</Heading>
-            
+
             <HStack>
               <Badge colorScheme="purple" fontSize="md" px={2} py={1}>
                 {character.server}
@@ -118,14 +119,14 @@ const CharacterDetails = () => {
                 {character.dataCenter}
               </Badge>
             </HStack>
-            
+
             {character.freeCompany && (
               <Box>
-                <Text fontWeight="bold" mb={1}>Free Company</Text>
+                <Text fontWeight="bold" mb={1}>Compagnie Libre</Text>
                 <Text>{character.freeCompany.name}</Text>
               </Box>
             )}
-            
+
             <Box w="100%">
               <Link
                 href={character.profileUrl}
@@ -143,25 +144,24 @@ const CharacterDetails = () => {
       </Flex>
 
       {/* Classes et niveaux */}
-      <Box bg="white" borderRadius="lg" p={6} boxShadow="md" mb={8}>
+      <Box bg="ffxiv.darkBlue" borderRadius="lg" p={6} boxShadow="md" mb={8}>
         <Heading size="md" mb={4}>Classes et Métiers</Heading>
         <Divider mb={4} />
-        
+
         <SimpleGrid columns={{ base: 2, sm: 3, md: 4, lg: 6 }} spacing={4}>
           {character.jobs
-            .sort((a, b) => b.level - a.level)
             .map((job) => (
               <HStack
                 key={job.name}
-                bg={job.level === 90 ? 'yellow.50' : 'gray.50'}
+                bg={job.level === 100 ? 'yellow.50' : 'gray.50'}
                 p={3}
                 borderRadius="md"
-                borderWidth={job.level === 90 ? 2 : 1}
-                borderColor={job.level === 90 ? 'yellow.400' : 'gray.200'}
+                borderWidth={job.level === 100 ? 3 : 1}
+                borderColor={job.level === 100 ? 'yellow.600' : 'gray.200'}
               >
-                <JobIcon job={job.name} boxSize={8} />
+                <JobCard image={job.image} job={job.name} boxSize={8} />
                 <VStack align="start" spacing={0}>
-                  <Text fontWeight={job.level === 90 ? 'bold' : 'medium'}>
+                  <Text fontWeight={job.level === 100 ? 'bold' : 'medium'} color="black">
                     {job.name}
                   </Text>
                   <Text fontSize="sm" color={job.level === 90 ? 'yellow.700' : 'gray.600'}>
@@ -172,23 +172,30 @@ const CharacterDetails = () => {
             ))}
         </SimpleGrid>
       </Box>
-      
+
       {/* Placeholder pour futures fonctionnalités */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-        <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
+        <Box bg="ffxiv.darkBlue" borderRadius="lg" p={6} boxShadow="md">
           <Heading size="md" mb={4}>Hauts Faits</Heading>
           <Divider mb={4} />
           <Text color="gray.500">
             Fonctionnalité à venir dans une prochaine version
           </Text>
         </Box>
-        
-        <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
+
+        <Box bg="ffxiv.darkBlue" borderRadius="lg" p={6} boxShadow="md">
           <Heading size="md" mb={4}>Montures & Mascottes</Heading>
           <Divider mb={4} />
-          <Text color="gray.500">
-            Fonctionnalité à venir dans une prochaine version
-          </Text>
+          <Flex direction="column" align="start">
+            <Button
+              as={RouterLink}
+              to={`/character/${id}/mounts`}
+              colorScheme="blue"
+              size="md"
+            >
+              Voir vos montures
+            </Button>
+          </Flex>
         </Box>
       </SimpleGrid>
     </Container>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Image, Text, VStack, HStack, Badge } from '@chakra-ui/react';
+import { Box, Image, Text, VStack, Badge } from '@chakra-ui/react';
+import {Flex} from '@chakra-ui/react';
 
 const CharacterCard = ({ character, onClick }) => {
   return (
@@ -40,7 +41,7 @@ const CharacterCard = ({ character, onClick }) => {
           {character.name}
         </Text>
 
-        <HStack>
+        <Flex width="100%" justify="space-between" align="center">
           <Badge
             bg="ffxiv.darkBlue"
             color="ffxiv.white"
@@ -53,7 +54,20 @@ const CharacterCard = ({ character, onClick }) => {
           >
             {`${character.server} [${character.dataCenter}]`}
           </Badge>
-        </HStack>
+
+          <Badge
+            bg="ffxiv.white"
+            color="ffxiv.black"
+            px={2}
+            py={1}
+            borderRadius="1px"
+            fontSize="xs"
+            letterSpacing="0.5px"
+          >
+            {character.lang}
+          </Badge>
+          
+        </Flex>
       </VStack>
     </Box>
   );
