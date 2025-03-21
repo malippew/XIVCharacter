@@ -24,8 +24,6 @@ def search_characters_service(name: str, server: str = "") -> list[dict]:
         # Construire l'URL de recherche
         search_url = f"{LODESTONE_URL}/?q={quote(name)}&worldname={quote(server)}"
 
-        print(search_url)
-
         response = get(search_url)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")

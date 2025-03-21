@@ -10,6 +10,8 @@ CORS(app)
 # Enregistrement du blueprint pour les personnages
 app.register_blueprint(character_bp, url_prefix="/api/characters")
 
+# Clé des réponses JSON non triées
+app.json.sort_keys = False # type: ignore
 
 # Gérer l'erreur 404
 @app.errorhandler(404)
