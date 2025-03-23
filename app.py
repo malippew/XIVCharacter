@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, g, render_template
+from flask import Flask, jsonify, send_from_directory, request, g
 from flask_cors import CORS
 from routes.character_routes import character_bp
 import os
@@ -31,7 +31,7 @@ def set_global_lang():
 # Handler 404
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html"), 404
+    return jsonify({"status": 404, "error": "Not found"})
 
 
 # Favicon
