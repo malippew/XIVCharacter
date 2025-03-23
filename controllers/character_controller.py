@@ -68,7 +68,7 @@ def get_character_details(id) -> tuple[Response, HTTPStatus]:
         return jsonify({"success": True, "character": character}), HTTPStatus.OK
 
     except HTTPError as e:
-        return jsonify({"success": False, "message": "Ce personnage n'existe pas"}), HTTPStatus.BAD_REQUEST
+        return jsonify({"success": False, "message": "Ce personnage n'existe pas"}), HTTPStatus.NOT_FOUND
 
     except Exception as error:
         print("Erreur lors de la récupération des détails du personnage:", error)

@@ -146,8 +146,8 @@ def get_character_details_service(character_id: int) -> dict:
             "avatar": avatar_elem.get("src") if avatar_elem else "",
             "portrait": portrait_elem.get("src") if portrait_elem else "",
             "profileUrl": character_url,
-            "jobs": jobs,
             "freeCompany": free_company,
+            "jobs": jobs,
         }
 
         return character

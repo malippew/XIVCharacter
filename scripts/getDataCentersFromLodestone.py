@@ -1,9 +1,7 @@
 from bs4 import BeautifulSoup
 from requests import get
 import json
-
-BASE_URL = "https://fr.finalfantasyxiv.com"
-WORLDSTATUS_URL = f"{BASE_URL}/lodestone/worldstatus"
+import sys
 
 def getDataCentersFromLodestone() -> None:
     """
@@ -54,4 +52,19 @@ def getDataCentersFromLodestone() -> None:
 
 
 if __name__ == "__main__":
+    langs = ["fr", "eu", "na", "de", "jp"]
+
+    # Langue par défaut : Anglais
+    if len(sys.argv) == 1:
+        lang = "eu"
+    elif sys.argv[1] not in langs or len(sys.argv) != 2:
+        print("Usage: python scripts/getDataCentersFromLodestone.py <lang>")
+        print("Lang accepted: fr, eu, na, de, jp")
+        exit(-1)
+    else:
+        lang = sys.argv[1]
+
+    BASE_URL = f"https://{lang}.finalfantasyxiv.com"
+    WORLDSTATUS_URL = f"{BASE_URL}/lodestone/worldstatus"
+
     getDataCentersFromLodestone()
