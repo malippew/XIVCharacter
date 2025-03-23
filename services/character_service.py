@@ -20,7 +20,7 @@ def search_characters_service(name: str, server: str = "") -> list[dict]:
 
         # Check if server is valid
         if server and server not in DataCenters.get_all_servers():
-            raise ValueError(f"Le serveur '{server}' n'existe pas. Vérifiez le nom.")
+            raise ValueError(f"Server '{server}' doesn't exist. Check the name")
 
         # Building URL
         search_url = f"{g.base_url}/lodestone/character/?q={quote(name)}&worldname={quote(server)}"
