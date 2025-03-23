@@ -1,8 +1,8 @@
 from requests import get, HTTPError
 from bs4 import BeautifulSoup, Tag
 from urllib.parse import quote
-import re
 from config.data_centers import DataCenters
+import re
 
 BASE_URL = "https://fr.finalfantasyxiv.com"
 LODESTONE_URL = f"{BASE_URL}/lodestone/character"
@@ -17,6 +17,9 @@ def search_characters_service(name: str, server: str = "") -> list[dict]:
     :return: Liste des personnages trouvés
     """
     try:
+        # Chargement des data centers
+        DataCenters.load_data()
+
         # Vérifier que le serveur est valide s'il est fourni
         if server and server not in DataCenters.get_all_servers():
             raise ValueError(f"Le serveur '{server}' n'existe pas. Vérifiez le nom.")

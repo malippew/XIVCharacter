@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from routes.character_routes import character_bp
 from flask import render_template
+import os
 
 # Initialisation de l'application Flask
 app: Flask = Flask(__name__)
@@ -17,6 +18,10 @@ app.json.sort_keys = False # type: ignore
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
 
 
 if __name__ == "__main__":

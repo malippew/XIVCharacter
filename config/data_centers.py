@@ -1,105 +1,17 @@
+import json
+
+
 class DataCenters:
     """Liste des Data Centers et leurs serveurs dans Final Fantasy XIV, classés par région."""
 
-    REGIONAL_DATA_CENTERS = {
-        "North America": {
-            "Aether": [
-                "Adamantoise",
-                "Cactuar",
-                "Faerie",
-                "Gilgamesh",
-                "Jenova",
-                "Midgardsormr",
-                "Sargatanas",
-                "Siren",
-            ],
-            "Primal": [
-                "Behemoth",
-                "Excalibur",
-                "Exodus",
-                "Famfrit",
-                "Hyperion",
-                "Lamia",
-                "Leviathan",
-                "Ultros",
-            ],
-            "Crystal": [
-                "Balmung",
-                "Brynhildr",
-                "Coeurl",
-                "Diabolos",
-                "Goblin",
-                "Malboro",
-                "Mateus",
-                "Zalera",
-            ],
-            "Dynamis": ["Halicarnassus", "Maduin", "Marilith", "Seraph"],
-        },
-        "Europe": {
-            "Chaos": [
-                "Cerberus",
-                "Louisoix",
-                "Moogle",
-                "Omega",
-                "Phantom",
-                "Ragnarok",
-                "Sagittarius",
-                "Spriggan",
-            ],
-            "Light": [
-                "Alpha",
-                "Lich",
-                "Odin",
-                "Phoenix",
-                "Raiden",
-                "Shiva",
-                "Twintania",
-                "Zodiark",
-            ],
-        },
-        "Japan": {
-            "Elemental": [
-                "Aegis",
-                "Atomos",
-                "Carbuncle",
-                "Garuda",
-                "Gungnir",
-                "Kujata",
-                "Ramuh",
-                "Tonberry",
-                "Typhon",
-                "Unicorn",
-            ],
-            "Gaia": [
-                "Alexander",
-                "Bahamut",
-                "Durandal",
-                "Fenrir",
-                "Ifrit",
-                "Ridill",
-                "Tiamat",
-                "Ultima",
-                "Valefor",
-                "Yojimbo",
-                "Zeromus",
-            ],
-            "Mana": [
-                "Anima",
-                "Asura",
-                "Belias",
-                "Chocobo",
-                "Hades",
-                "Ixion",
-                "Mandragora",
-                "Masamune",
-                "Pandaemonium",
-                "Shinryu",
-                "Titan",
-            ],
-            "Meteor": ["Bismarck", "Ravana", "Sephirot", "Sophia", "Zurvan"],
-        },
-        "Oceania": {"Materia": ["Bismarck", "Ravana", "Sephirot", "Sophia", "Zurvan"]},
-    }
+    REGIONAL_DATA_CENTERS: dict[str, dict[str, list]] = {}
+
+    @classmethod
+    def load_data(cls) -> None:
+        """Charge les données du fichier JSON pour REGIONAL_DATA_CENTERS."""
+        if not cls.REGIONAL_DATA_CENTERS:
+            with open("config/data_centers.json", "r", encoding="utf-8") as file:
+                cls.REGIONAL_DATA_CENTERS = json.load(file)
 
     @classmethod
     def get_servers(cls, data_center):
