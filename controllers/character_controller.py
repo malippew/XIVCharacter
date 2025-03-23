@@ -9,7 +9,7 @@ from services.character_service import (
 
 def search_characters() -> tuple[Response, HTTPStatus]:
     """
-    Recherche des personnages en fonction du nom et optionnellement du serveur
+    Search for characters based on name and optionally server
     """
     try:
         name = request.args.get("name")
@@ -17,9 +17,7 @@ def search_characters() -> tuple[Response, HTTPStatus]:
 
         if not name:
             return (
-                jsonify(
-                    {"success": False, "message": "Le nom du personnage est requis"}
-                ),
+                jsonify({"success": False, "message": "Character's name is required"}),
                 HTTPStatus.BAD_REQUEST,
             )
 
@@ -33,7 +31,7 @@ def search_characters() -> tuple[Response, HTTPStatus]:
                     "characters": (
                         sorted(characters, key=lambda char: char["name"])
                         if len(characters) > 0
-                        else "Aucun personnage trouvé"
+                        else "No character found"
                     ),
                 }
             ),
@@ -45,12 +43,11 @@ def search_characters() -> tuple[Response, HTTPStatus]:
         return jsonify({"success": False, "message": str(e)}), HTTPStatus.BAD_REQUEST
 
     except Exception as error:
-        print("Erreur lors de la recherche des personnages:", error)
         return (
             jsonify(
                 {
                     "success": False,
-                    "message": "Erreur lors de la recherche des personnages",
+                    "message": "Erreur while searching characters",
                     "error": str(error),
                 }
             ),
@@ -60,7 +57,7 @@ def search_characters() -> tuple[Response, HTTPStatus]:
 
 def get_character_details(id) -> tuple[Response, HTTPStatus]:
     """
-    Récupère les détails d'un personnage par son ID.
+    Retrieves a character's details by ID.
     """
     try:
         character = get_character_details_service(id)
@@ -68,15 +65,17 @@ def get_character_details(id) -> tuple[Response, HTTPStatus]:
         return jsonify({"success": True, "character": character}), HTTPStatus.OK
 
     except HTTPError as e:
-        return jsonify({"success": False, "message": "Ce personnage n'existe pas"}), HTTPStatus.NOT_FOUND
+        return (
+            jsonify({"success": False, "message": "Character not found"}),
+            HTTPStatus.NOT_FOUND,
+        )
 
     except Exception as error:
-        print("Erreur lors de la récupération des détails du personnage:", error)
         return (
             jsonify(
                 {
                     "success": False,
-                    "message": "Erreur lors de la récupération des détails du personnage",
+                    "message": "Erreur while getting character's data",
                     "error": str(error),
                 }
             ),
@@ -86,6 +85,6 @@ def get_character_details(id) -> tuple[Response, HTTPStatus]:
 
 def get_character_achievements(id):
     """
-    Recherche des hauts faits du personnage par son ID
+    Search character achievements by ID
     """
     return jsonify()

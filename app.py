@@ -1,31 +1,47 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request, g, render_template
 from flask_cors import CORS
 from routes.character_routes import character_bp
-from flask import render_template
 import os
 
-# Initialisation de l'application Flask
 app: Flask = Flask(__name__)
 CORS(app)
 
-# Enregistrement du blueprint pour les personnages
+# Character's blueprint
 app.register_blueprint(character_bp, url_prefix="/api/characters")
 
-# Clé des réponses JSON non triées
-app.json.sort_keys = False # type: ignore
+# ignoring JSON keys default sorting
+app.json.sort_keys = False  # type: ignore
 
-# Gérer l'erreur 404
+# Allowed languages and default language
+LANGS = {"fr", "eu", "na", "de", "jp"}
+DEFAULT_LANG = "eu"
+
+
+@app.before_request
+def set_global_lang():
+    lang = request.args.get("lang", DEFAULT_LANG)
+
+    # default language is eu (english)
+    if lang not in LANGS:
+        lang = DEFAULT_LANG
+    g.lang = lang
+    g.base_url = f"https://{g.lang}.finalfantasyxiv.com"
+
+
+# Handler 404
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
 
-@app.route('/favicon.ico')
+
+# Favicon
+@app.route("/favicon.ico")
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
+    return send_from_directory(os.path.join(app.root_path, "static"), "favicon.ico")
 
 
 if __name__ == "__main__":
     import os
 
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
