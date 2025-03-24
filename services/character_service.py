@@ -1,9 +1,12 @@
-from flask import g
-from requests import get, HTTPError
-from bs4 import BeautifulSoup, Tag
-from urllib.parse import quote
-from config.data_centers import DataCenters
+import asyncio
 import re
+from aiohttp import ClientSession, ClientResponseError
+from bs4 import BeautifulSoup, Tag
+from config.data_centers import DataCenters
+from flask import g
+from http import HTTPStatus
+from requests import get, HTTPError
+from urllib.parse import quote
 
 
 def search_characters_service(name: str, server: str = "") -> list[dict]:
@@ -65,12 +68,12 @@ def search_characters_service(name: str, server: str = "") -> list[dict]:
             )
         return characters
 
-    except ValueError as e:
-        raise e
+    except ValueError as error:
+        raise error
 
-    except Exception as e:
-        print("Error while scraping characters: ", e)
-        raise Exception(f"Scraping failed: {str(e)}")
+    except Exception as error:
+        print("Error while scraping characters: ", error)
+        raise Exception(f"Scraping failed: {str(error)}")
 
 
 def get_character_details_service(character_id: int) -> dict:
@@ -154,9 +157,98 @@ def get_character_details_service(character_id: int) -> dict:
 
         return character
 
-    except HTTPError as e:
-        raise e
+    except HTTPError as error:
+        raise error
 
-    except Exception as e:
-        print("Error while scraping characters: ", e)
-        raise Exception(f"Scraping failed: {str(e)}")
+    except Exception as error:
+        print("Error while scraping characters: ", error)
+        raise Exception(f"Scraping failed: {str(error)}")
+
+
+async def get_character_achievements_service(character_id: int) -> dict:
+    """
+    Search character achievements by ID
+
+    :param character_id: character's ID
+    :return: Dictionary containing character details
+    """
+    try:
+        # Building URL
+        character_achievements_url = (
+            f"{g.base_url}/lodestone/character/{character_id}/achievement"
+        )
+
+        async with ClientSession() as session:
+            response = await fetch(session, character_achievements_url)
+
+            if response:
+                soup = BeautifulSoup(response, "html.parser")
+
+            achievements = {}
+
+            # Récupération des catégories principales
+            category_elements = soup.select("nav.achievement__category dt")[1:]
+
+            # Lancement de toutes les requêtes pour récupérer les sous-catégories en parallèle
+            tasks = []
+            for entry_category_achievement in category_elements:
+                category_elem = entry_category_achievement.select_one("a")
+                if category_elem:
+                    category_name = category_elem.get_text(strip=True)
+                    category_urlArray = str(category_elem["href"]).split("/")
+                    category_url = "/" + "/".join(category_urlArray[-3:])
+                    category_fullUrl = f"{character_achievements_url}{category_url}"
+
+                    # Ajout des tâches pour récupérer les sous-catégories
+                    tasks.append(
+                        get_character_achievements_subcategories(
+                            session, category_fullUrl, category_name
+                        )
+                    )
+
+            results = await asyncio.gather(*tasks)
+
+            # Fusion des résultats
+            for category_name, subcategories in results:
+                achievements[category_name] = subcategories
+
+            return achievements
+
+    except ClientResponseError as error:
+        raise error
+
+    except Exception as error:
+        print(error.__class__)
+        print("Error while scraping character's achievements: ", error)
+        raise Exception(f"Scraping failed: {str(error)}")
+
+
+async def get_character_achievements_subcategories(
+    session, subCategory_url: str, category_name: str
+):
+    """
+    Fetch subcategories asynchronously
+    """
+    response = await fetch(session, subCategory_url)
+    if response:
+        soup = BeautifulSoup(response, "html.parser")
+
+    subCategories = {}
+
+    for entry_category_achievement in soup.select(
+        "nav.achievement__category .btn__category__list li"
+    ):
+        subcategory_elem = entry_category_achievement.select_one("a")
+        if subcategory_elem:
+            subcategory_name = subcategory_elem.get_text(strip=True)
+            subCategories[subcategory_name] = []
+
+    return category_name, subCategories
+
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        if response.status == HTTPStatus.OK:
+            return await response.text()
+        else:
+            response.raise_for_status()
